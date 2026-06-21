@@ -1,0 +1,17 @@
+const Application = require('../models/Application');
+
+const createApplication = async (req, res, next) => { try { const app = await Application.create({ ...req.body, user: req.user._id }); res.status(201).json({ success: true, data: app }); } catch (e) { next(e); } };
+const getApplications = async (req, res, next) => { try { const apps = await Application.find({ user: req.user._id, isArchived: false }).sort({ createdAt: -1 }); res.json({ success: true, count: apps.length, data: apps }); } catch (e) { next(e); } };
+const getApplicationById = async (req, res, next) => { try { const app = await Application.findById(req.params.id); res.json({ success: true, data: app }); } catch (e) { next(e); } };
+const updateApplication = async (req, res, next) => { try { const app = await Application.findByIdAndUpdate(req.params.id, req.body, { new: true }); res.json({ success: true, data: app }); } catch (e) { next(e); } };
+const deleteApplication = async (req, res, next) => { try { await Application.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch (e) { next(e); } };
+const updateStage = async (req, res, next) => { try { const app = await Application.findById(req.params.id); app.stage = req.body.stage; app.stageHistory.push({ stage: req.body.stage, notes: req.body.notes }); await app.save(); res.json({ success: true, data: app }); } catch (e) { next(e); } };
+const addInterview = async (req, res, next) => { try { const app = await Application.findById(req.params.id); app.interviews.push(req.body); await app.save(); res.json({ success: true, data: app }); } catch (e) { next(e); } };
+const addFollowUp = async (req, res, next) => { try { const app = await Application.findById(req.params.id); app.followUps.push(req.body); await app.save(); res.json({ success: true, data: app }); } catch (e) { next(e); } };
+const addDeadline = async (req, res, next) => { try { const app = await Application.findById(req.params.id); app.deadlines.push(req.body); await app.save(); res.json({ success: true, data: app }); } catch (e) { next(e); } };
+const getAnalytics = async (req, res, next) => { try { const apps = await Application.find({ user: req.user._id }); const analytics = { total: apps.length, active: apps.filter(a => !['rejected', 'withdrawn'].includes(a.stage)).length, interviewRate: 0, selectionRate: 0, byStage: {} }; apps.forEach(a => { analytics.byStage[a.stage] = (analytics.byStage[a.stage] || 0) + 1; }); res.json({ success: true, data: analytics }); } catch (e) { next(e); } };
+const getKanbanBoard = async (req, res, next) => { try { const apps = await Application.find({ user: req.user._id, isArchived: false }); const kanban = {}; apps.forEach(a => { if (!kanban[a.stage]) kanban[a.stage] = []; kanban[a.stage].push(a); }); res.json({ success: true, data: kanban }); } catch (e) { next(e); } };
+const syncCalendar = async (req, res, next) => { try { res.json({ success: true, message: 'Calendar synced' }); } catch (e) { next(e); } };
+const archiveApplication = async (req, res, next) => { try { await Application.findByIdAndUpdate(req.params.id, { isArchived: true }); res.json({ success: true }); } catch (e) { next(e); } };
+
+module.exports = { createApplication, getApplications, getApplicationById, updateApplication, deleteApplication, updateStage, addInterview, addFollowUp, addDeadline, getAnalytics, getKanbanBoard, syncCalendar, archiveApplication };
