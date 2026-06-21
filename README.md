@@ -436,15 +436,16 @@ http://localhost:5000/api/v1
 
 ## 📸 Screenshots
 
-> Screenshots & demo video coming soon!
+> 📷 Screenshots & demo video coming soon!
 
-| Dashboard | Mock Interview |
-|-----------|---------------|
-| ![Dashboard](docs/dashboard.png) | ![Interview](docs/interview.png) |
-
-| Resume Analyzer | Career Roadmap |
-|-----------------|----------------|
-| ![Resume](docs/resume.png) | ![Career](docs/career.png) |
+| Module | Status |
+|--------|--------|
+| 🏠 Dashboard | ✅ Live |
+| 🤖 Mock Interview | ✅ Live |
+| 📄 Resume Analyzer | ✅ Live |
+| 🎯 Career Roadmap | ✅ Live |
+| 💼 Job Tracker | ✅ Live |
+| 📊 Analytics | ✅ Live |
 
 ---
 
@@ -530,16 +531,14 @@ Found a security issue? Please email **security@smarthireai.com** instead of ope
 
 <table>
 <tr>
-<td align="center">
-<img src="https://github.com/yashvant.png" width="100px" alt="Yashvant"/><br/>
+<td align="center" width="50%">
 <b>Yashvant</b><br/>
-<sub>Full Stack & AI Engineer</sub><br/>
+<sub><b>Full Stack & AI Engineer</b></sub><br/>
 <sub>Backend • AI/ML • DevOps</sub>
 </td>
-<td align="center">
-<img src="https://github.com/shivani-kapase.png" width="100px" alt="Shivani"/><br/>
+<td align="center" width="50%">
 <b>Shivani Kapase</b><br/>
-<sub>Frontend & UX Designer</sub><br/>
+<sub><b>Frontend & UX Designer</b></sub><br/>
 <sub>React • UI/UX • Analytics</sub>
 </td>
 </tr>
