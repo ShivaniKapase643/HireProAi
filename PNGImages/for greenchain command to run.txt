@@ -1,0 +1,25 @@
+for greenchain command to run 
+cd C:\dfolders\GreenChain\GreenChain\backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python main.py
+
+cd C:\dfolders\GreenChain\GreenChain\frontend
+npm install
+npm run dev
+
+CARBON_CREDIT_PRICE_INR =800
+DATABASE_URL=postgresql://postgres.gnozosoenikiskxntypo:Yashvant%403005@aws-1-ap-south-1.pooler.supabase.com:6543/postgres
+EXPO_PUSH_ACCESS_TOKEN=optional
+GEMINI_API_KEY=AIzaSyCklw91J9uFksEWfmBrlNX9RHS_nTP2oOE
+GEMINI_MODEL=gemini-2.5-flash
+INDIA_BASELINE_CO2_PER_KM=0.9
+MONTHLY_CO2_TARGET_KG=5000
+PORT=8000
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdub3pvc29lbmlraXNreG50eXBvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2OTAyNjEsImV4cCI6MjA4NzI2NjI2MX0.j0J2LzGq5qtIi7V8atLkr9Z_ude3CMvTngXwq-kMkOc
+SUPABASE_URL=https://gnozosoenikiskxntypo.supabase.co
+
+
+MONGODB_URI=mongodb+srv://admin:PASSWORD@cluster0.kvy1jpj.mongodb.net/smarthire-ai?retryWrites=true&w=majority&appName=Cluster0
+MONGODB_URI=mongodb+srv://admin:Cp0HaxoPsUBrFS3t@cluster0.kvy1jpj.mongodb.net/smarthire-ai?retryWrites=true&w=majority&appName=Cluster0

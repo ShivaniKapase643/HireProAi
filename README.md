@@ -126,6 +126,8 @@ A unified AI ecosystem powered by Google Gemini, NLP, and modern web technologie
 
 ## 🛠 Tech Stack
 
+![Tech Stack](PNGImages/TechStackHireProAi.png)
+
 ### Frontend
 | Technology | Purpose |
 |------------|---------|
@@ -176,39 +178,23 @@ A unified AI ecosystem powered by Google Gemini, NLP, and modern web technologie
 
 ## 🏗 System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     CLIENT LAYER                             │
-│       React SPA + PWA + Real-time WebSocket Client          │
-└─────────────────────────┬───────────────────────────────────┘
-                          │ HTTPS / WSS
-┌─────────────────────────▼───────────────────────────────────┐
-│                    API GATEWAY                               │
-│   Express.js + JWT Auth + Rate Limiting + CORS + Helmet     │
-└─────────────────────────┬───────────────────────────────────┘
-                          │
-        ┌─────────────────┼─────────────────┬─────────────────┐
-        │                 │                 │                 │
-┌───────▼──────┐ ┌────────▼─────────┐ ┌─────▼─────┐ ┌─────────▼────────┐
-│ Auth Service │ │ Interview Service│ │ Resume API│ │ Tracker Service  │
-└───────┬──────┘ └────────┬─────────┘ └─────┬─────┘ └─────────┬────────┘
-        │                 │                 │                 │
-        └─────────────────┴─────────────────┴─────────────────┘
-                          │
-┌─────────────────────────▼───────────────────────────────────┐
-│                    AI/ML PIPELINE                            │
-│  Gemini API • NLP Engine • Speech-to-Text • Scoring Models  │
-└─────────────────────────┬───────────────────────────────────┘
-                          │
-┌─────────────────────────▼───────────────────────────────────┐
-│                      DATA LAYER                              │
-│   MongoDB Atlas • Redis Cache • AWS S3 • Cloudinary CDN     │
-└──────────────────────────────────────────────────────────────┘
-```
+![System Architecture](PNGImages/ArchitectureHirePROAI.png)
+
+> Layered microservices architecture designed for 100K+ concurrent users with 99.9% uptime SLA.
+
+### 🚀 Deployment Architecture
+
+![Deployment Architecture](PNGImages/DeployementArchitectDiag.png)
 
 ---
 
 ## 📁 Project Structure
+
+### 🔄 Project Workflow Pipeline
+
+![Project Pipeline](PNGImages/ProjectPipelineWorkflowDiagram.png)
+
+> End-to-end data flow from student input to AI-powered guidance.
 
 ```
 HireProAi/

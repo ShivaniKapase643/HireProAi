@@ -127,20 +127,34 @@ app.use('*', (req, res) => {
 
 // ===== START SERVER =====
 const PORT = process.env.PORT || 5000;
+const HOST = '0.0.0.0'; // Required for Render/Docker — bind to all interfaces
 
 const startServer = async () => {
+  // Connect to DB & Redis but don't crash if they fail
   try {
     await connectDB();
-    await connectRedis();
-    
-    server.listen(PORT, () => {
-      logger.info(`SmartHire AI Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
-    });
-  } catch (error) {
-    logger.error('Failed to start server:', error);
-    process.exit(1);
+  } catch (err) {
+    logger.warn('DB connection failed, continuing anyway:', err.message);
   }
+
+  try {
+    await connectRedis();
+  } catch (err) {
+    logger.warn('Redis connection failed, continuing anyway:', err.message);
+  }
+
+  server.listen(PORT, HOST, () => {
+    logger.info(`SmartHire AI Server running on ${HOST}:${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+  });
 };
+
+// Handle uncaught errors gracefully (don't crash the process)
+process.on('uncaughtException', (err) => {
+  logger.error('Uncaught Exception:', err);
+});
+process.on('unhandledRejection', (err) => {
+  logger.error('Unhandled Rejection:', err);
+});
 
 startServer();
 

@@ -45,15 +45,15 @@ export default function Dashboard() {
   return (
     <div className="space-y-5">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white relative overflow-hidden">
+      <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-5 sm:p-6 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mt-32 -mr-32"></div>
         <div className="absolute bottom-0 right-12 w-32 h-32 bg-white opacity-10 rounded-full -mb-16"></div>
         <div className="relative">
-          <h1 className="text-2xl font-bold">Welcome Back, {user?.name?.split(' ')[0] || 'Friend'}! 👋</h1>
-          <p className="text-orange-100 text-sm mt-1">AI-Powered Placement Preparation Platform</p>
-          <div className="flex gap-2 mt-4">
-            <button onClick={() => navigate('/interview')} className="px-4 py-2 bg-white text-orange-600 rounded-lg text-xs font-medium hover:bg-orange-50 transition">🎤 Start Interview</button>
-            <button onClick={() => navigate('/resume')} className="px-4 py-2 bg-orange-700 text-white rounded-lg text-xs font-medium hover:bg-orange-800 transition">📄 Analyze Resume</button>
+          <h1 className="text-xl sm:text-2xl font-bold">Welcome Back, {user?.name?.split(' ')[0] || 'Friend'}! 👋</h1>
+          <p className="text-orange-100 text-xs sm:text-sm mt-1">AI-Powered Placement Preparation Platform</p>
+          <div className="flex flex-wrap gap-2 mt-4">
+            <button onClick={() => navigate('/interview')} className="px-3 sm:px-4 py-2 bg-white text-orange-600 rounded-lg text-xs font-medium hover:bg-orange-50 transition">🎤 Start Interview</button>
+            <button onClick={() => navigate('/resume')} className="px-3 sm:px-4 py-2 bg-orange-700 text-white rounded-lg text-xs font-medium hover:bg-orange-800 transition">📄 Analyze Resume</button>
           </div>
         </div>
       </div>
