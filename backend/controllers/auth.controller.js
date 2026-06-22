@@ -134,12 +134,14 @@ const verifyOTP = async (req, res, next) => {
 const googleAuth = async (req, res, next) => {
   try {
     const { credential } = req.body;
+    console.log('[googleAuth] hit /api/v1/auth/google | credential present:', !!credential, '| client configured:', !!googleClient);
 
     if (!credential) {
       return res.status(400).json({ success: false, message: 'Missing Google credential' });
     }
 
     if (!googleClient) {
+      console.error('[googleAuth] GOOGLE_CLIENT_ID env not set on server');
       return res.status(500).json({ success: false, message: 'Google login is not configured on the server' });
     }
 
@@ -151,7 +153,9 @@ const googleAuth = async (req, res, next) => {
         audience: process.env.GOOGLE_CLIENT_ID,
       });
       payload = ticket.getPayload();
+      console.log('[googleAuth] token verified for:', payload.email, '| email_verified:', payload.email_verified);
     } catch (err) {
+      console.error('[googleAuth] verifyIdToken failed:', err.message);
       return res.status(401).json({ success: false, message: 'Invalid Google credential' });
     }
 
@@ -166,20 +170,24 @@ const googleAuth = async (req, res, next) => {
 
     let user = await User.findOne({ $or: [{ googleId }, { email }] });
     if (!user) {
+      console.log('[googleAuth] creating new user for:', email);
       user = await User.create({ name, email, googleId, profilePicture, isVerified: true });
     } else if (!user.googleId) {
+      console.log('[googleAuth] linking googleId to existing user:', email);
       user.googleId = googleId;
       if (!user.profilePicture && profilePicture) user.profilePicture = profilePicture;
       await user.save({ validateBeforeSave: false });
     }
 
     const token = user.getSignedJwtToken();
+    console.log('[googleAuth] success, issuing token for:', user.email);
     res.status(200).json({
       success: true,
       token,
       user: { id: user._id, name: user.name, email: user.email, role: user.role, profilePicture: user.profilePicture },
     });
   } catch (error) {
+    console.error('[googleAuth] unexpected error:', error.message);
     next(error);
   }
 };

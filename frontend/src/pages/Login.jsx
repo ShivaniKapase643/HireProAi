@@ -23,10 +23,14 @@ export default function Login() {
   // Proxy the click from our custom button to Google's hidden rendered button.
   const handleGoogleClick = () => {
     const realBtn = googleBtnRef.current?.querySelector('div[role="button"], button');
+    console.log('[Google] custom button clicked. proxy target found:', !!realBtn, 'gsi ready:', !!window.google?.accounts?.id);
     if (realBtn) {
       realBtn.click();
     } else if (window.google?.accounts?.id) {
+      console.log('[Google] no rendered button, falling back to One Tap prompt()');
       window.google.accounts.id.prompt();
+    } else {
+      console.warn('[Google] GSI not loaded yet — cannot start sign-in');
     }
   };
 
@@ -43,7 +47,9 @@ export default function Login() {
     if (!clientId) return;
 
     const handleCredential = async (response) => {
+      console.log('[Google] credential received from GSI:', !!response?.credential, '| API base:', import.meta.env.VITE_API_URL);
       const result = await dispatch(googleLogin(response.credential));
+      console.log('[Google] googleLogin thunk status:', result.meta.requestStatus, result.payload);
       if (result.meta.requestStatus === 'fulfilled') {
         navigate('/dashboard');
       }

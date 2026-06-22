@@ -18,11 +18,14 @@ export const loginUser = createAsyncThunk('auth/login', async (credentials, { re
 
 export const googleLogin = createAsyncThunk('auth/google', async (credential, { rejectWithValue }) => {
   try {
+    console.log('[authSlice] POST', (import.meta.env.VITE_API_URL || 'default') + '/auth/google');
     const { data } = await api.post('/auth/google', { credential });
+    console.log('[authSlice] google login success:', data?.user?.email);
     localStorage.setItem('token', data.token);
     return data;
   }
   catch (err) {
+    console.error('[authSlice] google login failed:', err.response?.status, err.response?.data || err.message);
     return rejectWithValue(err.response?.data?.message || err.message || 'Google sign-in failed');
   }
 });

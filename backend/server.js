@@ -56,15 +56,30 @@ app.set('io', io);
 
 // ===== MIDDLEWARE =====
 app.use(helmet());
-app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://localhost:5175',
-    process.env.CLIENT_URL,
-  ].filter(Boolean),
+// Allowed origins: localhost dev ports + configured CLIENT_URL(s) + Netlify domains
+const staticOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:5175',
+  'https://hireproai.netlify.app',
+  ...(process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',').map((o) => o.trim()) : []),
+].filter(Boolean);
+
+const corsOptions = {
+  origin(origin, callback) {
+    // allow non-browser tools (no origin) and server-to-server
+    if (!origin) return callback(null, true);
+    const allowed =
+      staticOrigins.includes(origin) || /\.netlify\.app$/.test(new URL(origin).hostname);
+    if (allowed) return callback(null, true);
+    console.warn('[CORS] blocked origin:', origin);
+    return callback(new Error(`Origin ${origin} not allowed by CORS`));
+  },
   credentials: true,
-}));
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(compression());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
