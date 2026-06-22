@@ -19,6 +19,10 @@ backend/.env
 frontend/.env
 *.env
 
+# Google OAuth client secret files
+client_secret*.json
+**/client_secret*.json
+
 # Logs
 logs/
 *.log

@@ -1,7 +1,21 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
+import { User, Mail, Lock, GraduationCap, Briefcase, UserCog } from 'lucide-react';
 import { registerUser } from '../store/slices/authSlice';
+import Select from '../components/Select';
+import AuthHeroPanel from '../components/AuthHeroPanel';
+import AuthMobileHeader from '../components/AuthMobileHeader';
+import AuthInput from '../components/AuthInput';
+import TeamCredit from '../components/TeamCredit';
+import logoIcon from '../images/logo.png';
+import '../styles/auth-animation.css';
+
+const ROLE_OPTIONS = [
+  { value: 'student', label: 'Student', description: 'Prepare for placements & interviews', icon: GraduationCap },
+  { value: 'tpo', label: 'Placement Officer (TPO)', description: 'Manage student placements', icon: UserCog },
+  { value: 'recruiter', label: 'Recruiter', description: 'Hire top talent', icon: Briefcase },
+];
 
 export default function Register() {
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '', role: 'student' });
@@ -29,7 +43,7 @@ export default function Register() {
     e.preventDefault();
     const validationError = validateForm();
     if (validationError) { setClientError(validationError); return; }
-    
+
     const result = await dispatch(registerUser({ name: form.name, email: form.email, password: form.password, role: form.role }));
     if (result.meta.requestStatus === 'fulfilled') navigate('/dashboard');
   };
@@ -53,87 +67,117 @@ export default function Register() {
   const strength = passwordStrength();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-2">
-            <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">S</span>
+    <div className="auth-page-register flex min-h-screen bg-gray-900">
+      {/* LEFT PANEL - Hero */}
+      <AuthHeroPanel
+        title="Start Your"
+        highlight="Success Story"
+        subtitle="with AI-Powered Preparation"
+      />
+
+      {/* RIGHT PANEL - Form (consistent with Login) */}
+      <div className="form-panel auth-right-panel relative flex w-full items-center justify-center overflow-y-auto p-6 lg:w-2/5 lg:p-8">
+        <div className="relative z-10 w-full max-w-md py-8">
+          {/* Mobile-only branded header */}
+          <AuthMobileHeader title="Start Your" highlight="Success Story" />
+
+          {/* Logo (desktop only — mobile header already shows branding) */}
+          <div className="mb-8 hidden text-center lg:block">
+            <div className="mb-2 inline-flex items-center gap-2.5">
+              <img src={logoIcon} alt="SmartHire AI" className="h-11 w-11 rounded-lg object-contain" />
+              <h1 className="font-display text-2xl font-bold text-gray-800">SmartHire AI</h1>
             </div>
-            <h1 className="text-2xl font-bold text-gray-800">SmartHire AI</h1>
+            <p className="text-sm text-gray-500">Create your account to get started</p>
           </div>
-          <p className="text-gray-500 text-sm">Create your account to get started</p>
-        </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-orange-100">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">Create Account</h2>
+          {/* Form */}
+          <div className="mb-8">
+            <h2 className="font-display mb-2 text-2xl font-bold text-gray-800">Create Account</h2>
+            <p className="mb-6 text-sm text-gray-500">Join thousands of students preparing for success</p>
 
-          {displayError && (
-            <div className="bg-red-50 text-red-700 text-sm p-3 rounded-lg mb-4 border border-red-200 flex items-start gap-2">
-              <span className="text-red-500 flex-shrink-0">⚠️</span>
-              <span>{displayError}</span>
-            </div>
-          )}
+            {displayError && (
+              <div className="mb-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                <span className="flex-shrink-0 text-red-500">⚠️</span>
+                <span>{displayError}</span>
+              </div>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
-              <input type="text" name="name" value={form.name} onChange={handleChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none" placeholder="e.g., Shivani Kapase" required />
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">Full Name *</label>
+                <AuthInput icon={User} type="text" name="name" value={form.name} onChange={handleChange} placeholder="e.g., Shivani Kapase" required />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-              <input type="email" name="email" value={form.email} onChange={handleChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none" placeholder="you@example.com" required />
-            </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">Email *</label>
+                <AuthInput icon={Mail} type="email" name="email" value={form.email} onChange={handleChange} placeholder="you@example.com" required />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Role *</label>
-              <select name="role" value={form.role} onChange={handleChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none">
-                <option value="student">Student</option>
-                <option value="tpo">Placement Officer (TPO)</option>
-                <option value="recruiter">Recruiter</option>
-              </select>
-            </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">Role *</label>
+                <Select
+                  value={form.role}
+                  onChange={(value) => { setForm({ ...form, role: value }); setClientError(''); }}
+                  options={ROLE_OPTIONS}
+                  placeholder="Select your role"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
-              <input type="password" name="password" value={form.password} onChange={handleChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none" placeholder="Min 8 chars, 1 uppercase, 1 number" required />
-              {form.password && (
-                <div className="mt-2">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                      <div className={`h-full transition-all ${strength.color}`} style={{ width: `${(strength.score / 5) * 100}%` }}></div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">Password *</label>
+                <AuthInput icon={Lock} type="password" name="password" value={form.password} onChange={handleChange} placeholder="Min 8 chars, 1 uppercase, 1 number" required />
+                {form.password && (
+                  <div className="mt-2">
+                    <div className="flex items-center gap-2">
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200">
+                        <div className={`h-full transition-all ${strength.color}`} style={{ width: `${(strength.score / 5) * 100}%` }}></div>
+                      </div>
+                      <span className="w-20 text-xs font-medium text-gray-600">{strength.label}</span>
                     </div>
-                    <span className="text-xs font-medium text-gray-600 w-20">{strength.label}</span>
+                    <ul className="mt-1.5 space-y-0.5 text-[11px] text-gray-500">
+                      <li className={form.password.length >= 8 ? 'text-green-600' : ''}>✓ At least 8 characters</li>
+                      <li className={/[A-Z]/.test(form.password) ? 'text-green-600' : ''}>✓ One uppercase letter</li>
+                      <li className={/[0-9]/.test(form.password) ? 'text-green-600' : ''}>✓ One number</li>
+                    </ul>
                   </div>
-                  <ul className="text-[11px] text-gray-500 mt-1.5 space-y-0.5">
-                    <li className={form.password.length >= 8 ? 'text-green-600' : ''}>✓ At least 8 characters</li>
-                    <li className={/[A-Z]/.test(form.password) ? 'text-green-600' : ''}>✓ One uppercase letter</li>
-                    <li className={/[0-9]/.test(form.password) ? 'text-green-600' : ''}>✓ One number</li>
-                  </ul>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password *</label>
-              <input type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none ${form.confirmPassword && form.password !== form.confirmPassword ? 'border-red-300 bg-red-50' : 'border-gray-200'}`} placeholder="Re-enter your password" required />
-              {form.confirmPassword && form.password !== form.confirmPassword && (
-                <p className="text-xs text-red-600 mt-1">Passwords do not match</p>
-              )}
-            </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">Confirm Password *</label>
+                <AuthInput
+                  icon={Lock}
+                  type="password"
+                  name="confirmPassword"
+                  value={form.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Re-enter your password"
+                  error={form.confirmPassword && form.password !== form.confirmPassword}
+                  required
+                />
+                {form.confirmPassword && form.password !== form.confirmPassword && (
+                  <p className="mt-1 text-xs text-red-600">Passwords do not match</p>
+                )}
+              </div>
 
-            <button type="submit" disabled={isLoading} className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50">
-              {isLoading ? 'Creating Account...' : 'Create Account'}
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="auth-submit-btn h-[52px] w-full rounded-xl text-base font-semibold tracking-[0.02em] text-white transition-all disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isLoading ? 'Creating Account...' : 'Create Account'}
+              </button>
+            </form>
 
-          <p className="text-center text-sm text-gray-500 mt-6">
-            Already have an account? <Link to="/login" className="text-orange-600 hover:text-orange-700 font-medium">Sign In</Link>
-          </p>
+            {/* Sign in link */}
+            <p className="mt-6 text-center text-sm text-gray-500">
+              Already have an account? <Link to="/login" className="font-medium text-orange-600 hover:text-orange-700">Sign In</Link>
+            </p>
+          </div>
+
+          {/* Footer */}
+          <TeamCredit />
         </div>
-
-        <p className="text-center text-xs text-gray-400 mt-6">Team TwinTech • Yashvant & Shivani</p>
       </div>
     </div>
   );

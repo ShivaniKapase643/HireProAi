@@ -1,6 +1,11 @@
 const User = require('../models/User');
 const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library');
 const { sendEmail } = require('../utils/emailService');
+
+const googleClient = process.env.GOOGLE_CLIENT_ID
+  ? new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+  : null;
 
 // @desc    Register user (FR-1.1)
 const register = async (req, res, next) => {
@@ -124,20 +129,56 @@ const verifyOTP = async (req, res, next) => {
 };
 
 // @desc    Google OAuth (FR-1.1)
+// Accepts a Google ID token ("credential") from Google Identity Services,
+// verifies it server-side, then logs in or registers the user.
 const googleAuth = async (req, res, next) => {
   try {
-    const { googleId, email, name, profilePicture } = req.body;
+    const { credential } = req.body;
+
+    if (!credential) {
+      return res.status(400).json({ success: false, message: 'Missing Google credential' });
+    }
+
+    if (!googleClient) {
+      return res.status(500).json({ success: false, message: 'Google login is not configured on the server' });
+    }
+
+    // Verify the ID token with Google and ensure it was issued for this app
+    let payload;
+    try {
+      const ticket = await googleClient.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      payload = ticket.getPayload();
+    } catch (err) {
+      return res.status(401).json({ success: false, message: 'Invalid Google credential' });
+    }
+
+    const googleId = payload.sub;
+    const email = payload.email;
+    const name = payload.name || email.split('@')[0];
+    const profilePicture = payload.picture || '';
+
+    if (!payload.email_verified) {
+      return res.status(401).json({ success: false, message: 'Google account email is not verified' });
+    }
 
     let user = await User.findOne({ $or: [{ googleId }, { email }] });
     if (!user) {
       user = await User.create({ name, email, googleId, profilePicture, isVerified: true });
     } else if (!user.googleId) {
       user.googleId = googleId;
-      await user.save();
+      if (!user.profilePicture && profilePicture) user.profilePicture = profilePicture;
+      await user.save({ validateBeforeSave: false });
     }
 
     const token = user.getSignedJwtToken();
-    res.status(200).json({ success: true, token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+    res.status(200).json({
+      success: true,
+      token,
+      user: { id: user._id, name: user.name, email: user.email, role: user.role, profilePicture: user.profilePicture },
+    });
   } catch (error) {
     next(error);
   }

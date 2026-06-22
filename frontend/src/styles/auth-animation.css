@@ -1,0 +1,245 @@
+/* ============================================
+   Auth Pages — Smooth, Playful, Professional
+   ============================================ */
+
+:root {
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ============================================
+   PAGE + PANEL ENTRANCE
+   ============================================ */
+.auth-page-login,
+.auth-page-register {
+  animation: pageFadeIn 0.6s ease-out;
+  overflow: hidden;
+}
+
+@keyframes pageFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.hero-panel {
+  animation: heroSlideIn 1s var(--smooth) both;
+}
+
+.form-panel {
+  animation: formSlideIn 1s var(--smooth) both;
+}
+
+@keyframes heroSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-100px) scale(0.97);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes formSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(100px) scale(0.97);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* ============================================
+   RIGHT FORM PANEL — off-white + accent + dots
+   ============================================ */
+.auth-right-panel {
+  background-color: #fafbff;
+  border-top: 4px solid transparent;
+  border-image: linear-gradient(90deg, #f97316, #fbbf24) 1;
+}
+
+/* Subtle dot grid behind the form card */
+.auth-right-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, #e2e8f0 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Soft success illustration watermark (desktop only) */
+.auth-right-panel::after {
+  content: '';
+  position: absolute;
+  right: -50px;
+  bottom: -50px;
+  width: 560px;
+  height: 560px;
+  background-image: url('../images/success-illustration1.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: bottom right;
+  opacity: 0.26;
+  mix-blend-mode: multiply;
+  /* Fade the top and left edges so no hard image lines show */
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0%, #000 55%),
+    linear-gradient(to bottom, transparent 0%, #000 55%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent 0%, #000 55%),
+    linear-gradient(to bottom, transparent 0%, #000 55%);
+  mask-composite: intersect;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@media (max-width: 1023px) {
+  .auth-right-panel::after {
+    display: none;
+  }
+}
+
+/* ============================================
+   HERO CONTENT — staggered entrance
+   ============================================ */
+.hero-panel h1 {
+  animation: dropIn 0.9s var(--spring) 0.3s both;
+}
+
+.hero-panel > div > p {
+  animation: dropIn 0.9s var(--spring) 0.45s both;
+}
+
+@keyframes dropIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ============================================
+   STAT CARDS — pop in then gently float
+   ============================================ */
+@keyframes popIn {
+  0%   { opacity: 0; transform: translateY(40px) scale(0.6); }
+  60%  { opacity: 1; transform: translateY(-6px) scale(1.04); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+.float-card-1 {
+  animation: popIn 0.7s var(--bounce) 0.6s both, float 6s ease-in-out 1.4s infinite;
+}
+.float-card-2 {
+  animation: popIn 0.7s var(--bounce) 0.75s both, float 8s ease-in-out 1.7s infinite;
+}
+.float-card-3 {
+  animation: popIn 0.7s var(--bounce) 0.9s both, float 7s ease-in-out 2s infinite;
+}
+
+/* Slow zoom on hero photo for life */
+.hero-panel img {
+  animation: slowZoom 20s ease-in-out infinite alternate;
+}
+
+@keyframes slowZoom {
+  from { transform: scale(1); }
+  to   { transform: scale(1.07); }
+}
+
+/* ============================================
+   FORM CONTENT — rise in
+   ============================================ */
+.form-panel > div > * {
+  animation: riseIn 0.7s var(--smooth) both;
+}
+
+.form-panel > div > div:nth-child(1) { animation-delay: 0.4s; }
+.form-panel > div > div:nth-child(2) { animation-delay: 0.55s; }
+.form-panel > div > div:nth-child(3) { animation-delay: 0.7s; }
+
+@keyframes riseIn {
+  0%   { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Logo bounce */
+.form-panel img {
+  animation: logoBounce 0.9s var(--bounce) 0.2s both;
+}
+
+@keyframes logoBounce {
+  0%   { opacity: 0; transform: scale(0) rotate(-180deg); }
+  60%  { transform: scale(1.12) rotate(8deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+/* ============================================
+   SUBMIT BUTTON — gradient + hover lift
+   ============================================ */
+.auth-submit-btn {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  transition: transform 0.25s var(--spring), box-shadow 0.25s ease;
+}
+
+.auth-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(249, 115, 22, 0.35);
+}
+
+.auth-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* ============================================
+   GOOGLE BUTTON — taller, rounded wrapper
+   ============================================ */
+.auth-google-btn > div,
+.auth-google-btn iframe {
+  width: 100% !important;
+}
+
+/* ============================================
+   MOBILE — lighter motion
+   ============================================ */
+@media (max-width: 1024px) {
+  .form-panel {
+    animation: mobileRise 0.6s var(--smooth) both;
+  }
+
+  @keyframes mobileRise {
+    0%   { opacity: 0; transform: translateY(30px); filter: blur(4px); }
+    100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY — reduced motion
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .auth-page-login *,
+  .auth-page-register * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -30,7 +30,7 @@ const UserSchema = new mongoose.Schema({
     }],
     skills: { technical: [String], soft: [String], tools: [String] },
     experience: [{
-      company: String, role: String, type: { type: String, enum: ['fulltime', 'internship', 'freelance'] },
+      company: String, role: String, type: { type: String, enum: ['fulltime', 'internship', 'freelance', 'parttime'] },
       startDate: Date, endDate: Date, description: String, current: Boolean,
     }],
     projects: [{

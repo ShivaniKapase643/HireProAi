@@ -1,10 +1,13 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import api from '../services/api';
 
 export default function Profile() {
   const [tab, setTab] = useState('overview');
   const [editing, setEditing] = useState(null);
   const [profilePic, setProfilePic] = useState(null);
   const [saved, setSaved] = useState('');
+  const [saving, setSaving] = useState('');
+  const [saveError, setSaveError] = useState('');
   const fileInputRef = useRef(null);
 
   const [profile, setProfile] = useState({
@@ -21,18 +24,155 @@ export default function Profile() {
     goals: { short: [], long: [] },
   });
 
+  // Load the logged-in user (incl. Google name & profile picture) and fill the profile
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await api.get('/users/profile');
+        const u = data?.data;
+        if (!u || cancelled) return;
+
+        const p = u.profile || {};
+        const addr = p.address || {};
+        const social = p.socialLinks || {};
+
+        if (u.profilePicture) setProfilePic(u.profilePicture);
+
+        setProfile((prev) => ({
+          ...prev,
+          name: u.name || '',
+          email: u.email || '',
+          phone: u.phone || '',
+          headline: p.headline || '',
+          summary: p.summary || '',
+          location: [addr.city, addr.state, addr.country].filter(Boolean).join(', '),
+          gender: p.gender || '',
+          github: social.github || '',
+          linkedin: social.linkedin || '',
+          portfolio: social.portfolio || '',
+          education: (p.education || []).map((e, i) => ({
+            id: e._id || Date.now() + i,
+            institution: e.institution || '',
+            degree: e.degree || '',
+            field: e.field || '',
+            year: [e.startYear, e.endYear].filter(Boolean).join('-'),
+            cgpa: e.cgpa || e.percentage || '',
+          })),
+          skills: {
+            technical: p.skills?.technical || [],
+            soft: p.skills?.soft || [],
+          },
+          projects: (p.projects || []).map((pr, i) => ({
+            id: pr._id || Date.now() + i,
+            title: pr.title || '',
+            tech: (pr.technologies || []).join(', '),
+            desc: pr.description || '',
+            link: pr.link || pr.github || '',
+          })),
+          goals: {
+            short: u.careerGoals?.shortTerm || [],
+            long: u.careerGoals?.longTerm || [],
+          },
+        }));
+      } catch (err) {
+        // Not logged in or request failed — keep empty form
+        console.error('Failed to load profile', err);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+
   // Temp edit states
   const [editForm, setEditForm] = useState({});
   const [newSkill, setNewSkill] = useState('');
   const [newSoftSkill, setNewSoftSkill] = useState('');
 
+  // Map the frontend profile state onto the backend User schema shape
+  const buildProfilePayload = (p) => {
+    const [city, state, country] = (p.location || '').split(',').map((s) => s.trim());
+    const num = (v) => {
+      const n = parseFloat(v);
+      return Number.isNaN(n) ? undefined : n;
+    };
+    return {
+      name: p.name,
+      phone: p.phone,
+      profile: {
+        headline: p.headline,
+        summary: p.summary,
+        gender: p.gender || undefined,
+        address: { city, state, country },
+        education: (p.education || []).map((e) => {
+          const [startYear, endYear] = (e.year || '').split('-').map((y) => parseInt(y.trim(), 10));
+          return {
+            institution: e.institution,
+            degree: e.degree,
+            field: e.field,
+            startYear: Number.isNaN(startYear) ? undefined : startYear,
+            endYear: Number.isNaN(endYear) ? undefined : endYear,
+            cgpa: num(e.cgpa),
+          };
+        }),
+        skills: { technical: p.skills?.technical || [], soft: p.skills?.soft || [] },
+        projects: (p.projects || []).map((pr) => ({
+          title: pr.title,
+          description: pr.desc,
+          technologies: (pr.tech || '').split(',').map((t) => t.trim()).filter(Boolean),
+          link: pr.link,
+        })),
+        experience: (p.experience || []).map((ex) => ({
+          company: ex.company,
+          role: ex.role,
+          type: ex.type,
+          description: ex.description,
+          current: ex.current,
+        })),
+        certifications: (p.certifications || []).map((c) => ({
+          title: c.title,
+          issuer: c.issuer,
+          url: c.credentialUrl,
+        })),
+        socialLinks: { github: p.github, linkedin: p.linkedin, portfolio: p.portfolio },
+      },
+      'careerGoals.shortTerm': (p.goals?.short || []).filter(Boolean),
+      'careerGoals.longTerm': (p.goals?.long || []).filter(Boolean),
+    };
+  };
+
+  // Persist the given profile object to the backend
+  const persistProfile = async (p, section) => {
+    setSaving(section || 'all');
+    setSaveError('');
+    try {
+      await api.put('/users/profile', buildProfilePayload(p));
+      setSaved(section || 'all');
+      setTimeout(() => setSaved(''), 2000);
+    } catch (err) {
+      console.error('Failed to save profile', err);
+      setSaveError(err.response?.data?.message || 'Failed to save. Please try again.');
+    } finally {
+      setSaving('');
+    }
+  };
+
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setProfilePic(reader.result);
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { alert('Image must be under 5MB'); return; }
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const dataUrl = reader.result;
+      setProfilePic(dataUrl); // instant preview
+      try {
+        await api.put('/users/profile/picture', { image: dataUrl });
+      } catch (err) {
+        console.error('Failed to upload picture', err);
+        setSaveError('Failed to save photo. Please try again.');
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const startEdit = (section) => {
@@ -40,9 +180,11 @@ export default function Profile() {
     setEditForm({ ...profile });
   };
 
-  const saveEdit = () => {
-    setProfile({ ...profile, ...editForm });
+  const saveEdit = async () => {
+    const merged = { ...profile, ...editForm };
+    setProfile(merged);
     setEditing(null);
+    await persistProfile(merged, 'personal');
   };
 
   const cancelEdit = () => { setEditing(null); setEditForm({}); };
@@ -85,9 +227,7 @@ export default function Profile() {
   };
 
   const saveSection = (section) => {
-    setSaved(section);
-    setTimeout(() => setSaved(''), 2000);
-    // In production: api.put('/users/profile', profile)
+    persistProfile(profile, section);
   };
 
   const completion = () => {
@@ -109,6 +249,12 @@ export default function Profile() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-5">
+      {saveError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg flex items-center justify-between">
+          <span>⚠️ {saveError}</span>
+          <button onClick={() => setSaveError('')} className="text-red-400 hover:text-red-600">✕</button>
+        </div>
+      )}
       {/* Profile Header with Image Upload */}
       <div className="bg-white rounded-xl border p-6">
         <div className="flex items-start gap-5">
